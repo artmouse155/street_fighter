@@ -15,17 +15,18 @@ class rectangle:
 
     #return a boolean saying if this rectangle intersects another rectangle
     def check_intersect(self, rect2):
+        
         #first, check if any corner coordinate is inside the other rectangle
         
         #check for rect1
         for point in self.get_points():
             if rect2.contains_point(point):
                 return True
-
+        
         #check for rect2
         points =  rect2.get_points()
         for point in points:
-            if self.rect.contains_point(point):
+            if self.contains_point(point):
                 return True
 
         #if no corner coordinate is inside the other rectangle, there is
@@ -52,8 +53,11 @@ class rectangle:
         p_x = point[0]
         p_y = point[1]
         if ((p_x > self.x) and (p_x < (self.x + self.width))):
+            #print("X:" + str(p_x) + " is between" + str(self.x) + " and " + str(self.x + self.width))
             if ((p_y > self.y) and (p_y < (self.y + self.height))):
+                #print("Y:" + str(p_y) + " is between" + str(self.y) + " and " + str(self.y + self.height))
                 return True
+        return False
 
     def get_points(self):
         x = self.x

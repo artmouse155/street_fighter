@@ -2,9 +2,11 @@ import turtle as trtl
 import rectangle
 import keyboard
 import data
+import healthbar
+
 class player:
-    width = 10
-    height = 40
+    width = 20
+    height = 60
     x = 0
     y = 0
     x_vel = 0
@@ -15,24 +17,43 @@ class player:
     jump_vel = 20
     rect = None
     color = "red"
-    movement_vel = 10
-    jump_vel = 10
+    movement_vel = 200
+    jump_vel = 500
     on_ground = True
 
-    def __init__(self, color, x, y) -> None:
+    max_hp = 100
+    hp = 100
+
+    player_healthbar = None
+    hb_offset_x = -40
+    hb_offset_y = 100
+
+    left_key = ""
+    right_key = ""
+    up_key = ""
+
+    def __init__(self, color, x, y, controls) -> None:
         self.x = x
         self.y = y
         self.player = trtl.Turtle()
+        self.player.hideturtle()
         self.player.penup()
         self.player.goto(x,y)
         self.player.color(color)
         self.color = color
         self.rect = rectangle.rectangle(x, y, self.height, self.width)
+        self.on_ground = False
+        self.player_healthbar = healthbar.healthbar(self.max_hp, x + self.hb_offset_x, y + self.hb_offset_y)
+
+        self.left_key = controls[0]
+        self.right_key = controls[1]
+        self.up_key = controls[2]
 
     def update(self, dt):
-        left_pressed = keyboard.is_pressed('a')
-        right_pressed = keyboard.is_pressed('d')
-        up_pressed = keyboard.is_pressed('w')
+
+        left_pressed = keyboard.is_pressed(self.left_key)
+        right_pressed = keyboard.is_pressed(self.right_key)
+        up_pressed = keyboard.is_pressed(self.up_key)
 
         #try to move left or right
         if (left_pressed == right_pressed):
@@ -45,6 +66,8 @@ class player:
 
         #check if we can jump
         if (up_pressed and self.on_ground):
+            self.on_ground = False
+            self.hp -= 10
             self.y_vel = self.jump_vel
         #attempt movement update
         
@@ -68,6 +91,11 @@ class player:
         self.player.clear()
         self.rect.draw(self.player, self.color)
 
+        #and draw out healthbar!
+        self.player_healthbar.goto(self.x + self.hb_offset_x, self.y + self.hb_offset_y)
+        self.player_healthbar.set_hp(self.hp)
+        self.player_healthbar.update()
+
     def adjust_for_collision(self, new_x, new_y):
         x = self.x
         y = self.y
@@ -85,7 +113,7 @@ class player:
                 #create a boolean value for if the potential rectangle intersects with
                 #the platform
             did_intersect = new_x_rect.check_intersect(platform_rect)
-                
+            
                 #if did_intersect is true, the player needs to collide with the side of a 
             #wall
             if (did_intersect):
@@ -100,9 +128,9 @@ class player:
                     distance_between_rectangles = platform_rect.get_x() - (x + self.rect.get_width())
                     new_x = x + distance_between_rectangles
                 #if we collided in the x without any x velocity, something went wrong!
-            else:
-                    print("That shouldn't have happened!")
-                    new_x = x
+                else:
+                        print("Collided in X without moving")
+                        new_x = x
         #if we collided at all, reset our x velocity
         if (reset_x_vel):
             self.x_vel = 0
@@ -114,12 +142,12 @@ class player:
         for i in range(len(data.platforms)):
             #a rectangle of the player's potential new bounding box in 
         #the x direction
-            new_y_rect = rectangle.rectangle(x, new_y, self.rect.get_height(), self.rect_get_width())
+            new_y_rect = rectangle.rectangle(x, new_y, self.rect.get_height(), self.rect.get_width())
             platform_rect = data.platforms[i]
 
             #create a boolean value for if the potential rectangle intersects with
             #the platform
-            did_intersect = new_y_rect.check_intersect(platform_rect.get_rect())
+            did_intersect = new_y_rect.check_intersect(platform_rect)
             
             #if did_intersect is true, the player needs to collide with the top or bottom of a 
         #platform
@@ -136,9 +164,9 @@ class player:
                     distance_between_rectangles = platform_rect.get_y() - (y + self.rect.get_height())
                     new_y = y + distance_between_rectangles
                 #if we collided in the y without any y velocity, something went wrong!
-            else:
-                    print("That shouldn't have happened!")
-                    new_y = y
+                else:
+                        print("Collided in Y without moving")
+                        new_y = y
         #if we collided at all, reset our y velocity
         if (reset_y_vel):
             self.y_vel = 0

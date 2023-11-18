@@ -1,5 +1,5 @@
 import turtle as trtl
-
+import rectangle
 class healthbar:
 
     max_hp = 100
@@ -17,6 +17,7 @@ class healthbar:
         self.x = x
         self.y = y
         self.bar = trtl.Turtle()
+        self.bar.hideturtle()
         self.bar.penup()
         self.bar.goto(x,y)
 
@@ -29,26 +30,12 @@ class healthbar:
         bar_h = self.bar_h
         hp_bar_w = bar_w * (self.hp / self.max_hp)
         bar.clear()
-        bar.color("red")
-        bar.goto(x,y)
-        bar.begin_fill()
-        bar.setx(x+bar_w)
-        bar.sety(y+bar_h)
-        bar.setx(x)
-        bar.sety(y)
-        bar.end_fill()
-
-        bar.color("green")
-        bar.goto(x,y)
-        bar.begin_fill()
-        bar.setx(x+hp_bar_w)
-        bar.sety(y+bar_h)
-        bar.setx(x)
-        bar.sety(y)
-        bar.end_fill()
+        rectangle.rectangle(x, y, bar_h, bar_w).draw(bar, "red")
+        rectangle.rectangle(x, y, bar_h, hp_bar_w).draw(bar, "green")
 
     def set_hp(self, hp):
         self.hp = hp
 
     def goto(self, x, y):
-        self.bar.goto(x,y)
+        self.x = x
+        self.y = y
